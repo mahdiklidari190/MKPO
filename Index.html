@@ -1,346 +1,2274 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="auto">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>جعبه ابزار هوشمند نِکسوس | Nexus Tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>متن و بازی هوشمند 3.0</title>
     
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- SEO & PWA -->
+    <meta name="description" content="ابزار تبدیل متن، رمزنگاری، فینگلیش و بازی‌های چندنفره هوشمند با UI فوق‌حرفه‌ای">
+    <meta name="keywords" content="بازی,رمزنگاری,فینگلیش,ابزار متن,منوی حرفه‌ای,UI خرخره">
+    <link rel="manifest" href="data:application/json,%7B%22name%22%3A%22متن%20و%20بازی%20هوشمند%203.0%22%2C%22short_name%22%3A%22متن%20بازی%203%22%2C%22start_url%22%3A%22/%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%220a192f%22%2C%22theme_color%22%3A%2264ffda%22%7D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+    <!-- Fonts -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- CryptoJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" defer></script>
+    
     <style>
+        /* ==================== CSS VARIABLES & THEME SYSTEM ==================== */
         :root {
-            --bg-dark: #0f172a;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --primary: #8b5cf6;
-            --secondary: #06b6d4;
-            --accent: #f43f5e;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --font-main: 'Vazirmatn', sans-serif;
-            --font-code: 'JetBrains Mono', monospace;
-            --radius: 20px;
-            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-header: rgba(255,255,255,0.9);
+            --text-primary: #0a192f;
+            --text-secondary: #495670;
+            --accent: #64ffda;
+            --primary: #6c5ce7;
+            --danger: #ff7675;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --border: rgba(0,0,0,0.08);
+            --shadow: rgba(0,0,0,0.1);
+            --glass: rgba(255,255,255,0.85);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --border-radius: 24px;
+            --nav-height: 80px;
+            --font-sans: 'Vazir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        [data-theme="dark"] {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --bg-card: #172a45;
+            --bg-header: rgba(17,34,64,0.9);
+            --text-primary: #e6f1ff;
+            --text-secondary: #8892b0;
+            --accent: #64ffda;
+            --primary: #6c5ce7;
+            --border: rgba(100,255,218,0.08);
+            --shadow: rgba(0,0,0,0.3);
+            --glass: rgba(17,34,64,0.85);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            [data-theme="auto"] {
+                --bg-primary: #0a192f;
+                --bg-secondary: #112240;
+                --bg-card: #172a45;
+                --bg-header: rgba(17,34,64,0.9);
+                --text-primary: #e6f1ff;
+            }
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *,*::before,*::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
 
         body {
-            font-family: var(--font-main);
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
+            padding-top: var(--nav-height);
             overflow-x: hidden;
+            transition: var(--transition);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Background */
-        .background-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
-        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: float 15s infinite ease-in-out; }
-        .blob-1 { width: 400px; height: 400px; background: var(--primary); top: -100px; left: -100px; }
-        .blob-2 { width: 300px; height: 300px; background: var(--secondary); bottom: -50px; right: -50px; animation-delay: 2s; }
-        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, 40px) scale(1.1); } }
-
-        /* Layout */
-        .app-container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; display: grid; grid-template-columns: 260px 1fr; gap: 2rem; }
-
-        /* Sidebar */
-        .sidebar {
-            background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
-            border-radius: var(--radius); padding: 1.5rem; height: fit-content; position: sticky; top: 2rem; box-shadow: var(--shadow);
+        /* ==================== HEADER & MENU ==================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-height);
+            background: var(--bg-header);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 clamp(1rem, 3vw, 2rem);
+            transition: var(--transition);
         }
-        .brand { font-size: 1.5rem; font-weight: 900; background: linear-gradient(135deg, var(--secondary), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2rem; text-align: center; }
-        .nav-item { padding: 0.8rem 1rem; border-radius: 12px; cursor: pointer; transition: 0.3s; color: var(--text-muted); display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-        .nav-item.active { background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), transparent); color: var(--secondary); border-right: 3px solid var(--secondary); }
 
-        /* Cards */
-        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: var(--glass-bg); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow); position: relative; }
-        h2 { margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
-        h2 span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; margin-right: auto; }
+        .logo {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.02em;
+        }
 
-        /* Forms */
-        textarea, input { width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem; color: var(--text-main); font-family: var(--font-main); margin-top: 8px; }
-        .btn { padding: 0.8rem 1.5rem; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; margin: 5px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-        .btn-accent { background: var(--accent); color: white; }
+        /* Desktop Menu */
+        .desktop-menu {
+            display: flex;
+            gap: clamp(0.5rem, 2vw, 1.5rem);
+            align-items: center;
+        }
 
-        /* Games */
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-        .game-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; cursor: pointer; text-align: center; transition: 0.3s; }
-        .game-card:hover { transform: translateY(-5px); border-color: var(--secondary); }
-        .tictactoe-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 300px; margin: 20px auto; }
-        .cell { background: rgba(255,255,255,0.05); aspect-ratio: 1; border-radius: 10px; font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            user-select: none;
+        }
 
-        /* Toast */
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; padding: 1rem 2rem; border-radius: 50px; border: 1px solid var(--primary); z-index: 1000; transition: 0.4s; opacity: 0; }
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
 
+        .nav-link:hover {
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+        }
+
+        .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .nav-link.active {
+            color: var(--bg-primary);
+            background: var(--gradient);
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle-header {
+            display: flex;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 0.25rem;
+            backdrop-filter: blur(10px);
+            margin: 0 1rem;
+        }
+
+        .theme-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 50%;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(100,255,218,0.5);
+        }
+
+        /* Mobile Hamburger */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1001;
+        }
+
+        .hamburger {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: var(--text-primary);
+            border-radius: 3px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .hamburger::before,
+        .hamburger::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 3px;
+            background: var(--text-primary);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        .hamburger::before {
+            top: -8px;
+        }
+
+        .hamburger::after {
+            top: 8px;
+        }
+
+        .mobile-menu-toggle.active .hamburger {
+            background: transparent;
+        }
+
+        .mobile-menu-toggle.active .hamburger::before {
+            transform: rotate(45deg);
+            top: 0;
+        }
+
+        .mobile-menu-toggle.active .hamburger::after {
+            transform: rotate(-45deg);
+            top: 0;
+        }
+
+        /* Mobile Overlay & Drawer */
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: var(--nav-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-menu-drawer {
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: min(80vw, 350px);
+            height: 100%;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            transition: right 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 2rem;
+            overflow-y: auto;
+            box-shadow: -10px 0 30px var(--shadow);
+        }
+
+        .mobile-menu-overlay.active .mobile-menu-drawer {
+            right: 0;
+        }
+
+        .mobile-nav-list {
+            list-style: none;
+        }
+
+        .mobile-nav-item {
+            margin-bottom: 1rem;
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .mobile-nav-link:hover,
+        .mobile-nav-link.active {
+            background: var(--gradient);
+            color: var(--bg-primary);
+            transform: translateX(-10px);
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== CARD COMPONENT ==================== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+
+        .card h2 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ==================== INPUT FIELDS ==================== */
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            resize: vertical;
+            min-height: 120px;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(100,255,218,0.1);
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: width 0.4s ease-out;
+        }
+
+        .btn:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .btn:hover::before {
+            width: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ==================== GAMES GRID ==================== */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s;
+        }
+
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px var(--shadow);
+            border-color: var(--accent);
+        }
+
+        .game-card h3 {
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .game-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-players {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .player-badge {
+            background: var(--border);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .player-badge.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        /* ==================== GAME BOARD ==================== */
+        .game-container {
+            display: none;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .game-container.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-board {
+            display: grid;
+            gap: 5px;
+            max-width: 400px;
+            margin: 2rem auto;
+            background: var(--border);
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .game-cell {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            transition: var(--transition);
+            aspect-ratio: 1;
+            user-select: none;
+        }
+
+        .game-cell:hover {
+            background: var(--accent);
+            transform: scale(0.95);
+        }
+
+        .game-cell.x {
+            color: var(--primary);
+            animation: popIn 0.3s;
+        }
+
+        .game-cell.o {
+            color: var(--danger);
+            animation: popIn 0.3s;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .game-info {
+            text-align: center;
+            margin: 1.5rem 0;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* ==================== HISTORY & LIBRARY ==================== */
+        .history-panel {
+            max-height: 500px;
+            overflow-y: auto;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .history-item {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid var(--accent);
+        }
+
+        .history-item:hover {
+            background: var(--border);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .history-item .history-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-item .history-text {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        /* ==================== TOAST NOTIFIER ==================== */
+        .toast {
+            position: fixed;
+            top: calc(var(--nav-height) + 20px);
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            z-index: 10000;
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 600;
+            max-width: calc(100vw - 40px);
+            word-wrap: break-word;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+        }
+
+        .toast-success {
+            background: rgba(0,184,148,0.9);
+            color: white;
+        }
+
+        .toast-error {
+            background: rgba(255,118,117,0.9);
+            color: white;
+        }
+
+        .toast-info {
+            background: rgba(253,203,110,0.9);
+            color: var(--bg-primary);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
         @media (max-width: 768px) {
-            .app-container { grid-template-columns: 1fr; padding-bottom: 80px; }
-            .sidebar { position: fixed; bottom: 0; left: 0; width: 100%; flex-direction: row; top: auto; border-radius: 20px 20px 0 0; display: flex; overflow-x: auto; padding: 10px; }
-            .brand { display: none; }
-            .nav-item { flex-direction: column; font-size: 0.7rem; min-width: 60px; }
+            .header {
+                padding: 0 1rem;
+            }
+
+            .desktop-menu {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .theme-toggle-header {
+                order: -1;
+                margin-left: 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-board {
+                max-width: 350px;
+            }
+
+            .game-cell {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-card {
+                padding: 1.5rem;
+            }
+
+            .theme-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 8px;
+        }
+
+        /* ==================== LOADING ANIMATION ==================== */
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            margin: 2rem auto;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== CUSTOM SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
         }
     </style>
 </head>
 <body>
+    <!-- Skip Link -->
+    <a href="#main" class="sr-only">رد شدن به محتوای اصلی</a>
 
-    <div class="background-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
-
-    <div class="app-container">
-        <nav class="sidebar">
-            <div class="brand">NEXUS</div>
-            <div class="nav-item active" onclick="switchTab('keyboard', this)">⌨️ کیبورد</div>
-            <div class="nav-item" onclick="switchTab('crypto', this)">🔐 امنیت</div>
-            <div class="nav-item" onclick="switchTab('pinglish', this)">🌍 فینگلیش</div>
-            <div class="nav-item" onclick="switchTab('tools', this)">🛠️ ابزارها</div>
-            <div class="nav-item" onclick="switchTab('games', this)">🎮 بازی</div>
-            <div class="nav-item" onclick="switchTab('library', this)">📚 ذخیره</div>
+    <!-- Header -->
+    <header class="header" role="banner">
+        <div class="logo" aria-label="لوگو سایت">🔧 متن و بازی 3.0</div>
+        
+        <nav class="desktop-menu" role="navigation" aria-label="منوی اصلی">
+            <a href="#" class="nav-link active" data-tab="keyboard" aria-current="page">⌨️ تایپ</a>
+            <a href="#" class="nav-link" data-tab="crypto">🔐 رمزنگاری</a>
+            <a href="#" class="nav-link" data-tab="pinglish">🌍 فینگلیش</a>
+            <a href="#" class="nav-link" data-tab="games">🎮 بازی‌ها</a>
+            <a href="#" class="nav-link" data-tab="tools">🛠️ ابزار</a>
+            <a href="#" class="nav-link" data-tab="history">📜 تاریخچه</a>
+            <a href="#" class="nav-link" data-tab="library">⭐ کتابخانه</a>
         </nav>
 
-        <main class="content-area">
-            <section id="keyboard" class="tab-content active">
-                <div class="card">
-                    <h2>اصلاح تایپ اشتباه</h2>
-                    <textarea id="kb-input" rows="4" placeholder="مثلاً: s alam (سلام)" oninput="convertKeyboard()"></textarea>
-                    <textarea id="kb-output" rows="4" readonly style="margin-top:20px; color:var(--secondary)"></textarea>
-                    <div class="btn-container">
-                        <button class="btn btn-primary" onclick="copyToClipboard('kb-output')">📋 کپی</button>
-                        <button class="btn btn-secondary" onclick="clearFields('kb')">🗑️ پاکسازی</button>
-                    </div>
-                </div>
-            </section>
+        <div class="theme-toggle-header" role="group" aria-label="تغییر تم">
+            <button class="theme-btn active" data-theme="light" title="تم روشن" aria-label="تم روشن">☀️</button>
+            <button class="theme-btn" data-theme="dark" title="تم تاریک" aria-label="تم تاریک">🌙</button>
+            <button class="theme-btn" data-theme="auto" title="تم سیستم" aria-label="تم سیستم">🔄</button>
+        </div>
 
-            <section id="crypto" class="tab-content">
-                <div class="card">
-                    <h2>رمزنگاری AES</h2>
-                    <textarea id="crypto-input" rows="3" placeholder="متن پیام..."></textarea>
-                    <input type="password" id="crypto-key" placeholder="کلید رمزنگاری (پسورد)">
-                    <div class="btn-container">
-                        <button class="btn btn-primary" onclick="performCrypto('encrypt')">🔒 قفل کردن</button>
-                        <button class="btn btn-accent" onclick="performCrypto('decrypt')">🔓 باز کردن</button>
-                    </div>
-                    <textarea id="crypto-output" rows="3" readonly style="margin-top:20px; font-family:monospace;"></textarea>
-                </div>
-            </section>
+        <button class="mobile-menu-toggle" aria-label="منوی موبایل" onclick="toggleMobileMenu()">
+            <span class="hamburger"></span>
+        </button>
+    </header>
 
-            <section id="pinglish" class="tab-content">
-                <div class="card">
-                    <h2>فینگلیش به فارسی</h2>
-                    <textarea id="pin-input" rows="4" placeholder="Salam chetori?"></textarea>
-                    <div class="btn-container" style="justify-content:center;">
-                        <button class="btn btn-primary" onclick="convertPinglish()">✨ تبدیل کن</button>
-                    </div>
-                    <textarea id="pin-output" rows="4" readonly style="margin-top:20px;"></textarea>
-                </div>
-            </section>
-
-            <section id="tools" class="tab-content">
-                <div class="card">
-                    <h2>ابزارهای سریع</h2>
-                    <div style="margin-bottom:20px">
-                        <label>🎲 تولید پسورد امن:</label>
-                        <div style="display:flex; gap:10px">
-                            <input type="text" id="pass-out" readonly>
-                            <button class="btn btn-primary" onclick="generatePass()">تولید</button>
-                        </div>
-                    </div>
-                    <hr style="opacity:0.1; margin:20px 0">
-                    <div>
-                        <label>🧹 تمیزکننده متن:</label>
-                        <textarea id="clean-input" rows="2" placeholder="متن با نیم‌فاصله یا ی/ک عربی..."></textarea>
-                        <button class="btn btn-secondary" onclick="cleanText()">✨ اصلاح حروف و فواصل</button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="games" class="tab-content">
-                <div id="games-menu" class="games-grid">
-                    <div class="game-card" onclick="startGame('tictactoe')">
-                        <div style="font-size:3rem">❌</div>
-                        <h3>دوز (Tic Tac Toe)</h3>
-                    </div>
-                    <div class="game-card" onclick="startGame('rps')">
-                        <div style="font-size:3rem">✊</div>
-                        <h3>سنگ کاغذ قیچی</h3>
-                    </div>
-                </div>
-
-                <div id="game-tictactoe" style="display:none; text-align:center">
-                    <h3>نوبت: <span id="turn-display">X</span></h3>
-                    <div class="tictactoe-board" id="ttt-board"></div>
-                    <button class="btn btn-secondary" onclick="exitGame()">خروج</button>
-                </div>
-
-                <div id="game-rps" style="display:none; text-align:center">
-                    <h3>سنگ، کاغذ، قیچی!</h3>
-                    <div class="btn-container" style="justify-content:center; margin:20px 0">
-                        <button class="btn btn-secondary" onclick="playRPS('rock')">✊ سنگ</button>
-                        <button class="btn btn-secondary" onclick="playRPS('paper')">✋ کاغذ</button>
-                        <button class="btn btn-secondary" onclick="playRPS('scissors')">✌️ قیچی</button>
-                    </div>
-                    <div id="rps-result" style="font-size:1.2rem; margin:20px; min-height:50px"></div>
-                    <button class="btn btn-accent" onclick="exitGame()">خروج</button>
-                </div>
-            </section>
-
-            <section id="library" class="tab-content">
-                <div class="card">
-                    <h2>کتابخانه ذخیره‌ها</h2>
-                    <div id="library-list"></div>
-                    <button class="btn btn-secondary" style="margin-top:20px" onclick="clearLibrary()">🗑️ پاکسازی کل تاریخچه</button>
-                </div>
-            </section>
-        </main>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-overlay" id="mobileOverlay" onclick="toggleMobileMenu()">
+        <div class="mobile-menu-drawer" onclick="event.stopPropagation()">
+            <ul class="mobile-nav-list">
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link active" data-tab="keyboard" onclick="handleMobileLink(this)">⌨️ تایپ اشتباه</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link" data-tab="crypto" onclick="handleMobileLink(this)">🔐 رمزنگاری</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link" data-tab="pinglish" onclick="handleMobileLink(this)">🌍 فینگلیش</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link" data-tab="games" onclick="handleMobileLink(this)">🎮 بازی‌ها</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link" data-tab="tools" onclick="handleMobileLink(this)">🛠️ ابزار</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link" data-tab="history" onclick="handleMobileLink(this)">📜 تاریخچه</a></li>
+                <li class="mobile-nav-item"><a href="#" class="mobile-nav-link" data-tab="library" onclick="handleMobileLink(this)">⭐ کتابخانه</a></li>
+            </ul>
+        </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <!-- Main Content -->
+    <main id="main" class="container" role="main">
+        <!-- Keyboard Tab -->
+        <section id="keyboard" class="tab-content active" role="tabpanel" aria-labelledby="tab-keyboard">
+            <div class="card">
+                <h2>⌨️ تبدیل تایپ اشتباه کیبورد</h2>
+                <p>وقتی زبان کیبورد روی انگلیسی است و شما دکمه‌های فارسی را می‌زنید</p>
+                
+                <div class="input-group">
+                    <label for="kb-input">📥 متن انگلیسی اشتباه:</label>
+                    <textarea id="kb-input" class="input-field" placeholder="مثلاً: sShk یا s alam" aria-describedby="kb-help"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="kb-output">📤 متن فارسی صحیح:</label>
+                    <textarea id="kb-output" class="input-field" readonly placeholder="خروجی اینجا نمایش داده می‌شود..." aria-live="polite"></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="clearKeyboard()">🗑️ پاک کردن</button>
+                    <button class="btn btn-success" onclick="copyToClipboard(kbOutput.value, 'خروجی کپی شد!')">📋 کپی</button>
+                    <button class="btn btn-warning" onclick="addToLibrary('keyboard')">⭐ ذخیره</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crypto Tab -->
+        <section id="crypto" class="tab-content" role="tabpanel" aria-labelledby="tab-crypto">
+            <div class="card">
+                <h2>🔐 رمزنگاری پیشرفته AES-256</h2>
+                <p>رمزنگاری با کلید دلخواه و تشخیص خودکار زبان</p>
+                
+                <div class="input-group">
+                    <label for="crypto-input">📥 متن ورودی:</label>
+                    <textarea id="crypto-input" class="input-field" placeholder="متن خود را اینجا بنویسید..." aria-describedby="crypto-help"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="crypto-key">🔑 کلید رمزنگاری (اختیاری):</label>
+                    <input type="password" id="crypto-key" class="input-field" style="min-height: 50px;" placeholder="دفعات پیشنهاد می‌شود">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="encryptText()">🔒 رمزنگاری</button>
+                    <button class="btn btn-secondary" onclick="decryptPrompt()">🔓 رمزگشایی</button>
+                    <button class="btn btn-danger" onclick="clearCrypto()">🗑️ پاک کردن</button>
+                </div>
+                
+                <div id="crypto-output" class="game-container">
+                    <h4>🔑 کد رمز:</h4>
+                    <textarea id="crypto-code" class="input-field" readonly></textarea>
+                    <button class="btn btn-success" onclick="copyToClipboard(cryptoCode.value, 'کد رمز کپی شد!')">📋 کپی کد</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pinglish Tab -->
+        <section id="pinglish" class="tab-content" role="tabpanel" aria-labelledby="tab-pinglish">
+            <div class="card">
+                <h2>🌍 تبدیل فینگلیش ↔ فارسی</h2>
+                <p>تشخیص خودکار و تبدیل هوشمند با پشتیبانی از لهجه‌ها</p>
+                
+                <div class="input-group">
+                    <label for="pinglish-input">📥 متن ورودی:</label>
+                    <textarea id="pinglish-input" class="input-field" placeholder="متن فینگلیش یا فارسی را وارد کنید..." aria-describedby="pinglish-help"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="pinglish-output">📤 متن خروجی:</label>
+                    <textarea id="pinglish-output" class="input-field" readonly aria-live="polite"></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="detectPinglish()">🔍 تشخیص خودکار</button>
+                    <button class="btn btn-secondary" onclick="pinglishToFarsi()">فینگلیش ← فارسی</button>
+                    <button class="btn btn-secondary" onclick="farsiToPinglish()">فارسی ← فینگلیش</button>
+                    <button class="btn btn-success" onclick="copyToClipboard(pinglishOutput.value, 'خروجی کپی شد!')">📋 کپی</button>
+                    <button class="btn btn-warning" onclick="addToLibrary('pinglish')">⭐ ذخیره</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Games Tab -->
+        <section id="games" class="tab-content" role="tabpanel" aria-labelledby="tab-games">
+            <div class="card">
+                <h2>🎮 بازی‌های چندنفره هوشمند</h2>
+                <p>بازی‌هایی که می‌توانید در یک گوشی با دوستان یا ربات بازی کنید</p>
+                
+                <div class="games-grid">
+                    <div class="game-card" onclick="startGame('tictactoe')" role="button" tabindex="0" aria-label="بازی تیک تاک تو">
+                        <h3>❌ ⭕ تیک‌تاک‌تو</h3>
+                        <p>بازی کلاسیک دو نفره. خط سه‌تایی بسازید!</p>
+                        <div class="game-players">
+                            <span class="player-badge active">۲ نفره</span>
+                            <span class="player-badge">با ربات 🤖</span>
+                        </div>
+                    </div>
+
+                    <div class="game-card" onclick="startGame('connect4')" role="button" tabindex="0" aria-label="بازی Connect 4">
+                        <h3>🔴 🔵 Connect 4</h3>
+                        <p>چهار مهره هم‌رنگ در یک خط. چالش‌برانگیز!</p>
+                        <div class="game-players">
+                            <span class="player-badge active">۲ نفره</span>
+                        </div>
+                    </div>
+
+                    <div class="game-card" onclick="startGame('ludo')" role="button" tabindex="0" aria-label="بازی منچ">
+                        <h3>🎲 منچ (Ludo)</h3>
+                        <p>بازی محبوب ایرانی تا ۴ نفره!</p>
+                        <div class="game-players">
+                            <span class="player-badge active">۴ نفره</span>
+                            <span class="player-badge">۳ نفره</span>
+                            <span class="player-badge">۲ نفره</span>
+                        </div>
+                    </div>
+
+                    <div class="game-card" onclick="startGame('rockpaperscissors')" role="button" tabindex="0" aria-label="بازی سنگ کاغذ قیچی">
+                        <h3>✋ سنگ‌کاغذ-قیچی</h3>
+                        <p>بازی محبوب با AI هوشمند Cohere</p>
+                        <div class="game-players">
+                            <span class="player-badge active">تک‌نفره 🤖</span>
+                            <span class="player-badge">۲ نفره</span>
+                        </div>
+                    </div>
+
+                    <div class="game-card" onclick="startGame('choob')" role="button" tabindex="0" aria-label="بازی چلاق">
+                        <h3>🪜 بازی چلاق</h3>
+                        <p>بازی فکری ایرانی. از چلاق‌ها بالا برو!</p>
+                        <div class="game-players">
+                            <span class="player-badge active">۲ نفره</span>
+                            <span class="player-badge">با ربات 🤖</span>
+                        </div>
+                    </div>
+
+                    <div class="game-card" onclick="startGame('maze')" role="button" tabindex="0" aria-label="بازی لابیرنت">
+                        <h3>🌀 MAZE (لابیرنت)</h3>
+                        <p>حل لابیرنت پیچیده با AI</p>
+                        <div class="game-players">
+                            <span class="player-badge active">تک‌نفره 🤖</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Boards -->
+                <div id="game-tictactoe" class="game-container"></div>
+                <div id="game-connect4" class="game-container"></div>
+                <div id="game-ludo" class="game-container"></div>
+                <div id="game-rockpaperscissors" class="game-container"></div>
+                <div id="game-choob" class="game-container"></div>
+                <div id="game-maze" class="game-container"></div>
+            </div>
+        </section>
+
+        <!-- Tools Tab -->
+        <section id="tools" class="tab-content" role="tabpanel" aria-labelledby="tab-tools">
+            <div class="card">
+                <h2>🛠️ ابزارهای اضافی</h2>
+                
+                <h3>🔑 تولید پسورد تصادفی قوی</h3>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generatePassword()">🎲 تولید پسورد</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard(passwordOutput.value, 'پسورد کپی شد!')">📋 کپی</button>
+                </div>
+                <textarea id="password-output" class="input-field" readonly style="min-height: 60px; margin-top: 1rem;"></textarea>
+                
+                <hr style="margin: 3rem 0; border: 1px solid var(--border);">
+                
+                <h3>🧹 اصلاح خودکار متن فارسی</h3>
+                <div class="input-group">
+                    <textarea id="cleaner-input" class="input-field" placeholder="متن برای اصلاح..."></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1rem 0;">
+                    <label><input type="checkbox" id="fix-spaces" checked> حذف فاصله‌های اضافی</label>
+                    <label><input type="checkbox" id="fix-arabic" checked> اصلاح ي/ك عربی</label>
+                    <label><input type="checkbox" id="fix-punctuation" checked> علائم فارسی</label>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="cleanText()">✨ اصلاح متن</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard(cleanerInput.value, 'متن اصلاح‌شده کپی شد!')">📋 کپی</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Tab -->
+        <section id="history" class="tab-content" role="tabpanel" aria-labelledby="tab-history">
+            <div class="card">
+                <h2>📜 تاریخچه تبدیل‌ها</h2>
+                <p>آخرین ۵۰ تبدیل شما (فقط در دستگاه شما ذخیره می‌شود)</p>
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="clearHistory()">🗑️ پاک کردن تاریخچه</button>
+                    <button class="btn btn-secondary" onclick="exportHistory()">📥 خروجی CSV</button>
+                </div>
+                <div class="history-panel" id="history-list"></div>
+            </div>
+        </section>
+
+        <!-- Library Tab -->
+        <section id="library" class="tab-content" role="tabpanel" aria-labelledby="tab-library">
+            <div class="card">
+                <h2>⭐ کتابخانه شخصی</h2>
+                <p>متن‌های مهم شما با عنوان و برچسب‌گذاری</p>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="addToLibraryPrompt()">➕ افزودن جدید</button>
+                </div>
+                <div id="library-grid" style="margin-top: 1rem;"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 2rem; background: var(--bg-secondary); margin-top: 3rem; border-top: 1px solid var(--border);">
+        <p style="color: var(--text-secondary);">🚀 ابزار متن و بازی هوشمند 3.0 | ساخته شده با ❤️ و ☕ | نسخه فوق‌حرفه‌ای</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+            <a href="#" style="color: var(--accent); text-decoration: none;">حریم خصوصی</a> | 
+            <a href="#" style="color: var(--accent); text-decoration: none;">API برای توسعه‌دهندگان</a>
+        </p>
+    </footer>
 
     <script>
-        // --- Core UI ---
-        function switchTab(id, el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById(id).classList.add('active');
-            if(id === 'library') loadLibrary();
+        // ==================== COHERE API KEY (WARNING!) ==================== */
+        const COHERE_API_KEY = 'qX7sKhEWrDcAw0PZVs6zmjMQry3oTXDqxL39jT3O';
+        const COHERE_API_URL = 'https://api.cohere.ai/v1/generate';
+
+        // ==================== THEME SYSTEM ==================== */
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            themeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === theme);
+                btn.setAttribute('aria-pressed', btn.dataset.theme === theme);
+            });
+            
+            // Animate theme change
+            document.body.style.transition = 'background 0.5s ease';
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+        });
 
-        function copyToClipboard(id) {
-            const val = document.getElementById(id).value;
-            if(!val) return;
-            navigator.clipboard.writeText(val);
-            showToast('کپی شد! ✅');
-        }
+        setTheme(savedTheme);
 
-        // --- Logic: Keyboard ---
-        const kbMap = {'q':'ض','w':'ص','e':'ث','r':'ق','t':'ف','y':'غ','u':'ع','i':'ه','o':'خ','p':'ح','[':'ج',']':'چ','a':'ش','s':'س','d':'ی','f':'ب','g':'ل','h':'ا','j':'ت','k':'ن','l':'م',';':'ک',"'":'گ','z':'ظ','x':'ط','c':'ز','v':'ر','b':'ذ','n':'د','m':'پ',',':'و','?':'؟'};
-        function convertKeyboard() {
-            const input = document.getElementById('kb-input').value.toLowerCase();
-            document.getElementById('kb-output').value = input.split('').map(c => kbMap[c] || c).join('');
-        }
+        // ==================== MENU SYSTEM ==================== */
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
 
-        // --- Logic: Crypto ---
-        function performCrypto(mode) {
-            const input = document.getElementById('crypto-input').value;
-            const key = document.getElementById('crypto-key').value || 'NEXUS_DEFAULT';
-            if(!input) return;
-            try {
-                if(mode === 'encrypt') {
-                    const res = CryptoJS.AES.encrypt(input, key).toString();
-                    document.getElementById('crypto-output').value = res;
-                } else {
-                    const bytes = CryptoJS.AES.decrypt(input, key);
-                    document.getElementById('crypto-output').value = bytes.toString(CryptoJS.enc.Utf8);
-                }
-            } catch(e) { showToast('خطا در عملیات! ❌'); }
-        }
-
-        // --- Logic: Pinglish (Enhanced) ---
-        const pinMap = {'sh':'ش','ch':'چ','gh':'ق','kh':'خ','zh':'ژ','a':'ا','b':'ب','p':'پ','t':'ت','j':'ج','d':'د','r':'ر','z':'ز','s':'س','f':'ف','k':'ک','g':'گ','l':'ل','m':'م','n':'ن','v':'و','h':'ه','y':'ی','i':'ی','u':'و','o':'و'};
-        function convertPinglish() {
-            let text = document.getElementById('pin-input').value.toLowerCase();
-            ['sh','ch','gh','kh','zh'].forEach(k => text = text.replace(new RegExp(k, 'g'), pinMap[k]));
-            let out = text.split('').map(c => pinMap[c] || c).join('');
-            document.getElementById('pin-output').value = out;
-        }
-
-        // --- Logic: Tools ---
-        function generatePass() {
-            const s = "abcdefgABCDEFG123456789!@#$%";
-            document.getElementById('pass-out').value = Array(12).fill(s).map(x => x[Math.floor(Math.random()*x.length)]).join('');
-        }
-        function cleanText() {
-            let t = document.getElementById('clean-input').value;
-            t = t.replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/\s+/g, ' ').trim();
-            document.getElementById('clean-input').value = t;
-            showToast('اصلاح شد ✨');
-        }
-
-        // --- Logic: Games (Tic Tac Toe & RPS) ---
-        let tttBoard = Array(9).fill('');
-        let currentPlayer = 'X';
-        function startGame(g) {
-            document.getElementById('games-menu').style.display = 'none';
-            if(g === 'tictactoe') {
-                document.getElementById('game-tictactoe').style.display = 'block';
-                initTTT();
+        function toggleMobileMenu() {
+            const isOpen = mobileMenuToggle.classList.contains('active');
+            
+            if (isOpen) {
+                mobileMenuToggle.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                mobileMenuToggle.setAttribute('aria-expanded', 'false');
             } else {
-                document.getElementById('game-rps').style.display = 'block';
+                mobileMenuToggle.classList.add('active');
+                mobileOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                mobileMenuToggle.setAttribute('aria-expanded', 'true');
             }
         }
-        function exitGame() {
-            document.getElementById('game-tictactoe').style.display = 'none';
-            document.getElementById('game-rps').style.display = 'none';
-            document.getElementById('games-menu').style.display = 'grid';
+
+        function handleMobileLink(link) {
+            const tab = link.dataset.tab;
+            
+            // Update desktop menu
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('active');
+                l.removeAttribute('aria-current');
+            });
+            const desktopLink = document.querySelector(`.nav-link[data-tab="${tab}"]`);
+            if (desktopLink) {
+                desktopLink.classList.add('active');
+                desktopLink.setAttribute('aria-current', 'page');
+            }
+            
+            // Update mobile menu
+            document.querySelectorAll('.mobile-nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Switch tab
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                if (content.id === tab) {
+                    content.classList.add('active');
+                }
+            });
+            
+            toggleMobileMenu();
+            
+            // Load data
+            if (tab === 'history') loadHistory();
+            if (tab === 'library') loadLibrary();
         }
-        function initTTT() {
-            tttBoard = Array(9).fill(''); currentPlayer = 'X';
-            const b = document.getElementById('ttt-board'); b.innerHTML = '';
-            tttBoard.forEach((_, i) => {
-                const d = document.createElement('div'); d.className = 'cell';
-                d.onclick = () => {
-                    if(tttBoard[i] || !currentPlayer) return;
-                    tttBoard[i] = 'X'; d.innerText = 'X';
-                    if(checkWin('X')) return;
-                    setTimeout(aiMove, 500);
-                };
-                b.appendChild(d);
+
+        // Desktop menu
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tab = link.dataset.tab;
+                
+                document.querySelectorAll('.nav-link').forEach(l => {
+                    l.classList.remove('active');
+                    l.removeAttribute('aria-current');
+                });
+                link.classList.add('active');
+                link.setAttribute('aria-current', 'page');
+                
+                document.querySelectorAll('.mobile-nav-link').forEach(l => l.classList.remove('active'));
+                const mobileLink = document.querySelector(`.mobile-nav-link[data-tab="${tab}"]`);
+                if (mobileLink) mobileLink.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tab) content.classList.add('active');
+                });
+                
+                if (tab === 'history') loadHistory();
+                if (tab === 'library') loadLibrary();
+            });
+        });
+
+        // ==================== COHERE API ==================== */
+        async function callCohere(prompt, maxTokens = 50) {
+            try {
+                const response = await fetch(COHERE_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${COHERE_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Cohere-Version': '2022-12-06'
+                    },
+                    body: JSON.stringify({
+                        model: 'command',
+                        prompt: prompt,
+                        max_tokens: maxTokens,
+                        temperature: 0.7,
+                        stop_sequences: ["\n"]
+                    })
+                });
+                
+                const data = await response.json();
+                return data.generations?.[0]?.text?.trim() || 'random';
+            } catch (error) {
+                console.error('Cohere API Error:', error);
+                showToast('⚠️ خطا در اتصال به AI', 'error');
+                return 'random';
+            }
+        }
+
+        // ==================== GAME SYSTEM ==================== */
+        const currentGames = {};
+
+        function startGame(gameType) {
+            // Hide all game containers
+            document.querySelectorAll('.game-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            // Show selected game
+            const gameContainer = document.getElementById(`game-${gameType}`);
+            if (!gameContainer) return;
+            
+            gameContainer.classList.add('active');
+            gameContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Initialize game
+            switch(gameType) {
+                case 'tictactoe':
+                    initTicTacToe();
+                    break;
+                case 'connect4':
+                    initConnect4();
+                    break;
+                case 'ludo':
+                    initLudo();
+                    break;
+                case 'rockpaperscissors':
+                    initRockPaperScissors();
+                    break;
+                case 'choob':
+                    initChoob();
+                    break;
+                case 'maze':
+                    initMaze();
+                    break;
+            }
+        }
+
+        function initTicTacToe() {
+            const container = document.getElementById('game-tictactoe');
+            container.innerHTML = `
+                <h3>❌ ⭕ تیک‌تاک‌تو</h3>
+                <div class="game-controls">
+                    <button class="btn btn-primary" onclick="setGameMode('tictactoe', 'pvp')">👥 ۲ نفره</button>
+                    <button class="btn btn-secondary" onclick="setGameMode('tictactoe', 'ai')">🤖 با ربات</button>
+                    <button class="btn btn-danger" onclick="resetGame('tictactoe')">🔄 شروع مجدد</button>
+                </div>
+                <div class="game-info" id="tictactoe-info">نوبت بازیکن ۱ (❌)</div>
+                <div class="game-board" id="tictactoe-board" style="grid-template-columns: repeat(3, 1fr);"></div>
+            `;
+            
+            createBoard('tictactoe', 3, 3);
+            currentGames.tictactoe = {
+                board: Array(9).fill(null),
+                currentPlayer: 'X',
+                mode: 'pvp',
+                isGameOver: false
+            };
+            updateGameInfo('tictactoe');
+        }
+
+        function createBoard(gameType, rows, cols) {
+            const board = document.getElementById(`${gameType}-board`);
+            board.innerHTML = '';
+            board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            
+            for (let i = 0; i < rows * cols; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.index = i;
+                cell.setAttribute('role', 'button');
+                cell.setAttribute('aria-label', `سلول ${i + 1}`);
+                cell.onclick = () => handleCellClick(gameType, i);
+                board.appendChild(cell);
+            }
+        }
+
+        function handleCellClick(gameType, index) {
+            const game = currentGames[gameType];
+            if (!game || game.isGameOver) return;
+            
+            if (gameType === 'tictactoe') {
+                if (game.board[index]) return;
+                
+                makeMove(gameType, index, game.currentPlayer);
+                
+                if (checkWinner(gameType)) {
+                    endGame(gameType, `بازیکن ${game.currentPlayer === 'X' ? '۱' : '۲'} برنده شد!`);
+                } else if (game.board.every(cell => cell)) {
+                    endGame(gameType, 'بازی مساوی شد!');
+                } else {
+                    switchPlayer(gameType);
+                    
+                    if (game.mode === 'ai' && game.currentPlayer === 'O') {
+                        setTimeout(() => aiMoveTicTacToe(), 500);
+                    }
+                }
+            }
+        }
+
+        function makeMove(gameType, index, player) {
+            const game = currentGames[gameType];
+            game.board[index] = player;
+            
+            const cell = document.querySelector(`#${gameType}-board .game-cell[data-index="${index}"]`);
+            cell.textContent = player === 'X' ? '❌' : '⭕';
+            cell.classList.add(player.toLowerCase());
+        }
+
+        function switchPlayer(gameType) {
+            const game = currentGames[gameType];
+            game.currentPlayer = game.currentPlayer === 'X' ? 'O' : 'X';
+            updateGameInfo(gameType);
+        }
+
+        function updateGameInfo(gameType) {
+            const game = currentGames[gameType];
+            const info = document.getElementById(`${gameType}-info`);
+            const playerName = game.currentPlayer === 'X' ? '۱' : '۲';
+            info.textContent = `نوبت بازیکن ${playerName} (${game.currentPlayer === 'X' ? '❌' : '⭕'})`;
+        }
+
+        function checkWinner(gameType) {
+            const game = currentGames[gameType];
+            const board = game.board;
+            
+            const winPatterns = [
+                [0,1,2], [3,4,5], [6,7,8], // rows
+                [0,3,6], [1,4,7], [2,5,8], // cols
+                [0,4,8], [2,4,6] // diagonals
+            ];
+            
+            return winPatterns.some(pattern => {
+                const [a,b,c] = pattern;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
             });
         }
-        function aiMove() {
-            const empty = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-            if(empty.length) {
-                const move = empty[Math.floor(Math.random()*empty.length)];
-                tttBoard[move] = 'O';
-                document.getElementById('ttt-board').children[move].innerText = 'O';
-                checkWin('O');
-            }
-        }
-        function checkWin(p) {
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            if(wins.some(w => w.every(i => tttBoard[i] === p))) {
-                confetti(); showToast(`بازیکن ${p} برنده شد! 🎉`);
-                setTimeout(initTTT, 2000); return true;
-            }
-            return false;
-        }
-        function playRPS(user) {
-            const options = ['rock', 'paper', 'scissors'];
-            const ai = options[Math.floor(Math.random()*3)];
-            const resEl = document.getElementById('rps-result');
-            let res = "";
-            if(user === ai) res = "مساوی! 🤝";
-            else if((user==='rock' && ai==='scissors') || (user==='paper' && ai==='rock') || (user==='scissors' && ai==='paper')) {
-                res = "تو برنده شدی! 🎉"; confetti();
-            } else res = "ربات برنده شد! 🤖";
-            resEl.innerHTML = `انتخاب تو: ${user} | انتخاب ربات: ${ai} <br> <b>${res}</b>`;
+
+        function endGame(gameType, message) {
+            const game = currentGames[gameType];
+            game.isGameOver = true;
+            document.getElementById(`${gameType}-info`).textContent = message;
+            showToast(message, 'success');
         }
 
-        // --- Logic: Library ---
-        function loadLibrary() {
-            const lib = JSON.parse(localStorage.getItem('nx_lib') || '[]');
-            const container = document.getElementById('library-list');
-            container.innerHTML = lib.length ? lib.map(item => `<div class="card" style="padding:10px; margin-top:5px">${item}</div>`).join('') : 'خالی است...';
+        function resetGame(gameType) {
+            if (gameType === 'tictactoe') {
+                initTicTacToe();
+            }
         }
-        function clearLibrary() { localStorage.removeItem('nx_lib'); loadLibrary(); }
+
+        function setGameMode(gameType, mode) {
+            if (!currentGames[gameType]) return;
+            currentGames[gameType].mode = mode;
+            resetGame(gameType);
+            showToast(`حالت بازی: ${mode === 'ai' ? 'با ربات 🤖' : 'دو نفره 👥'}`, 'info');
+        }
+
+        async function aiMoveTicTacToe() {
+            const game = currentGames.tictactoe;
+            if (game.isGameOver || game.currentPlayer !== 'O') return;
+            
+            const emptyCells = game.board.map((cell, index) => cell ? null : index).filter(i => i !== null);
+            if (emptyCells.length === 0) return;
+            
+            const prompt = `You are playing Tic-Tac-Toe as O. Board state: ${game.board.map(c => c || '-').join('')}. Choose best move (0-8):`;
+            const aiResponse = await callCohere(prompt, 3);
+            
+            let move = parseInt(aiResponse);
+            if (isNaN(move) || game.board[move]) {
+                move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            }
+            
+            handleCellClick('tictactoe', move);
+        }
+
+        // ==================== CONNECT 4 ==================== */
+        function initConnect4() {
+            const container = document.getElementById('game-connect4');
+            container.innerHTML = `
+                <h3>🔴 🔵 Connect 4</h3>
+                <div class="game-controls">
+                    <button class="btn btn-primary" onclick="setGameMode('connect4', 'pvp')">👥 ۲ نفره</button>
+                    <button class="btn btn-danger" onclick="resetGame('connect4')">🔄 شروع مجدد</button>
+                </div>
+                <div class="game-info" id="connect4-info">نوبت بازیکن ۱ (قرمز)</div>
+                <div class="game-board" id="connect4-board" style="grid-template-columns: repeat(7, 1fr);"></div>
+            `;
+            
+            createBoard('connect4', 6, 7);
+            currentGames.connect4 = {
+                board: Array(42).fill(null),
+                currentPlayer: '🔴',
+                isGameOver: false,
+                columnHeights: Array(7).fill(0)
+            };
+            updateGameInfo('connect4');
+        }
+
+        function makeConnect4Move(col) {
+            const game = currentGames.connect4;
+            if (game.isGameOver) return;
+            
+            const row = 5 - game.columnHeights[col];
+            if (row < 0) return;
+            
+            const index = row * 7 + col;
+            game.board[index] = game.currentPlayer;
+            
+            const cell = document.querySelector(`#connect4-board .game-cell[data-index="${index}"]`);
+            cell.textContent = game.currentPlayer;
+            game.columnHeights[col]++;
+            
+            if (checkConnect4Winner()) {
+                endGame('connect4', `بازیکن ${game.currentPlayer} برنده شد!`);
+            } else if (game.board.every(cell => cell)) {
+                endGame('connect4', 'بازی مساوی شد!');
+            } else {
+                game.currentPlayer = game.currentPlayer === '🔴' ? '🔵' : '🔴';
+                updateGameInfo('connect4');
+            }
+        }
+
+        function updateGameInfo(gameType) {
+            const game = currentGames[gameType];
+            const info = document.getElementById(`${gameType}-info`);
+            
+            if (gameType === 'connect4') {
+                info.textContent = `نوبت بازیکن ${game.currentPlayer === '🔴' ? '۱' : '۲'} (${game.currentPlayer})`;
+            } else if (gameType === 'tictactoe') {
+                const playerName = game.currentPlayer === 'X' ? '۱' : '۲';
+                info.textContent = `نوبت بازیکن ${playerName} (${game.currentPlayer === 'X' ? '❌' : '⭕'})`;
+            }
+        }
+
+        function checkConnect4Winner() {
+            const game = currentGames.connect4;
+            const board = game.board;
+            const rows = 6, cols = 7;
+            
+            // Check all directions
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const i = r * cols + c;
+                    if (!board[i]) continue;
+                    
+                    // Horizontal
+                    if (c <= cols - 4 && board[i] === board[i+1] && board[i] === board[i+2] && board[i] === board[i+3]) return true;
+                    
+                    // Vertical
+                    if (r <= rows - 4 && board[i] === board[i+cols] && board[i] === board[i+2*cols] && board[i] === board[i+3*cols]) return true;
+                    
+                    // Diagonal down-right
+                    if (r <= rows - 4 && c <= cols - 4 && board[i] === board[i+cols+1] && board[i] === board[i+2*cols+2] && board[i] === board[i+3*cols+3]) return true;
+                    
+                    // Diagonal down-left
+                    if (r <= rows - 4 && c >= 3 && board[i] === board[i+cols-1] && board[i] === board[i+2*cols-2] && board[i] === board[i+3*cols-3]) return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // ==================== ROCK PAPER SCISSORS ==================== */
+        function initRockPaperScissors() {
+            const container = document.getElementById('game-rockpaperscissors');
+            container.innerHTML = `
+                <h3>✋ 🪨 📄 ✂️ سنگ‌کاغذ-قیچی</h3>
+                <div class="game-controls">
+                    <button class="btn btn-primary" onclick="setGameMode('rps', 'pvp')">👥 ۲ نفره</button>
+                    <button class="btn btn-secondary" onclick="setGameMode('rps', 'ai')">🤖 با ربات</button>
+                </div>
+                <div class="game-info" id="rps-info"></div>
+                <div class="btn-group" id="rps-buttons">
+                    <button class="btn btn-primary" onclick="playRPS('rock')">🪨 سنگ</button>
+                    <button class="btn btn-primary" onclick="playRPS('paper')">📄 کاغذ</button>
+                    <button class="btn btn-primary" onclick="playRPS('scissors')">✂️ قیچی</button>
+                </div>
+                <div class="game-info" id="rps-result"></div>
+            `;
+            
+            currentGames.rps = {
+                mode: 'ai',
+                player1Choice: null,
+                player2Choice: null,
+                currentPlayer: 1,
+                isGameOver: false
+            };
+            
+            updateRPSInfo();
+        }
+
+        async function playRPS(choice) {
+            const game = currentGames.rps;
+            const info = document.getElementById('rps-info');
+            const result = document.getElementById('rps-result');
+            
+            if (game.mode === 'ai') {
+                info.textContent = `شما: ${getRPSEmoji(choice)}`;
+                
+                const aiChoice = await getAIChoiceRPS();
+                result.textContent = `ربات: ${getRPSEmoji(aiChoice)}`;
+                
+                const winner = determineRPSWinner(choice, aiChoice);
+                if (winner === 'tie') {
+                    showToast('مساوی! 🤝', 'info');
+                } else if (winner === 'player1') {
+                    showToast('شما برنده شدید! 🎉', 'success');
+                } else {
+                    showToast('ربات برنده شد! 🤖', 'error');
+                }
+            } else {
+                if (game.currentPlayer === 1) {
+                    game.player1Choice = choice;
+                    game.currentPlayer = 2;
+                    info.textContent = `بازیکن ۱ انتخاب کرد. نوبت بازیکن ۲`;
+                } else {
+                    game.player2Choice = choice;
+                    const winner = determineRPSWinner(game.player1Choice, game.player2Choice);
+                    
+                    if (winner === 'tie') {
+                        result.textContent = 'مساوی! 🤝';
+                        showToast('مساوی!', 'info');
+                    } else {
+                        result.textContent = `بازیکن ${winner === 'player1' ? '۱' : '۲'} برنده شد! 🎉`;
+                        showToast(`بازیکن ${winner === 'player1' ? '۱' : '۲'} برنده شد!`, 'success');
+                    }
+                    
+                    game.currentPlayer = 1;
+                }
+            }
+        }
+
+        function getRPSEmoji(choice) {
+            const emojis = { 'rock': '🪨', 'paper': '📄', 'scissors': '✂️' };
+            return emojis[choice] || choice;
+        }
+
+        async function getAIChoiceRPS() {
+            const prompt = `ما در حال بازی "سنگ، کاغذ، قیچی" هستیم. یکی از این سه گزینه را انتخاب کن: rock, paper, یا scissors. فقط کلمه را بنویس.`;
+            const response = await callCohere(prompt, 10);
+            const choices = ['rock', 'paper', 'scissors'];
+            const normalized = choices.find(choice => response.toLowerCase().includes(choice));
+            return normalized || choices[Math.floor(Math.random() * 3)];
+        }
+
+        function determineRPSWinner(player1, player2) {
+            if (player1 === player2) return 'tie';
+            
+            if (
+                (player1 === 'rock' && player2 === 'scissors') ||
+                (player1 === 'paper' && player2 === 'rock') ||
+                (player1 === 'scissors' && player2 === 'paper')
+            ) {
+                return 'player1';
+            }
+            
+            return 'player2';
+        }
+
+        function updateRPSInfo() {
+            const game = currentGames.rps;
+            const info = document.getElementById('rps-info');
+            
+            if (game.mode === 'ai') {
+                info.textContent = 'حالت: بازی با ربات 🤖';
+            } else {
+                info.textContent = `حالت: ۲ نفره | نوبت بازیکن ${game.currentPlayer}`;
+            }
+        }
+
+        // ==================== CHOOB (Ladders) ==================== */
+        function initChoob() {
+            const container = document.getElementById('game-choob');
+            container.innerHTML = `
+                <h3>🪜 بازی چلاق (Snakes & Ladders)</h3>
+                <div class="game-controls">
+                    <button class="btn btn-primary" onclick="setGameMode('choob', 'pvp')">👥 ۲ نفره</button>
+                    <button class="btn btn-secondary" onclick="setGameMode('choob', 'ai')">🤖 با ربات</button>
+                    <button class="btn btn-danger" onclick="rollDiceChoob()">🎲 تاس</button>
+                </div>
+                <div class="game-info" id="choob-info">نوبت بازیکن ۱ (🔵)</div>
+                <div class="game-board" id="choob-board" style="grid-template-columns: repeat(10, 1fr);"></div>
+            `;
+            
+            createBoard('choob', 10, 10);
+            currentGames.choob = {
+                positions: [0, 0],
+                currentPlayer: 0,
+                mode: 'pvp',
+                isGameOver: false,
+                snakes: { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 64: 60, 87: 24, 93: 73, 95: 75, 98: 78 },
+                ladders: { 1: 38, 4: 14, 9: 31, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 80: 100 }
+            };
+            
+            updateChoobBoard();
+            updateGameInfo('choob');
+        }
+
+        function rollDiceChoob() {
+            const game = currentGames.choob;
+            if (game.isGameOver) return;
+            
+            const dice = Math.floor(Math.random() * 6) + 1;
+            const player = game.currentPlayer;
+            const currentPos = game.positions[player];
+            let newPos = Math.min(currentPos + dice, 100);
+            
+            // Check snakes and ladders
+            if (game.snakes[newPos]) {
+                newPos = game.snakes[newPos];
+                showToast(`چلاق! رفت به خانه ${newPos} 🐍`, 'error');
+            } else if (game.ladders[newPos]) {
+                newPos = game.ladders[newPos];
+                showToast(`نردبان! بالا رفت به خانه ${newPos} 🪜`, 'success');
+            }
+            
+            game.positions[player] = newPos;
+            updateChoobBoard();
+            
+            if (newPos === 100) {
+                endGame('choob', `بازیکن ${player + 1} برنده شد! 🎉`);
+                return;
+            }
+            
+            // Next player
+            if (game.mode === 'ai' && game.currentPlayer === 1) {
+                game.currentPlayer = 0;
+            } else {
+                game.currentPlayer = (game.currentPlayer + 1) % (game.mode === 'ai' ? 1 : 2);
+            }
+            
+            updateGameInfo('choob');
+            
+            if (game.mode === 'ai' && game.currentPlayer === 1) {
+                setTimeout(() => rollDiceChoob(), 1500);
+            }
+        }
+
+        function updateChoobBoard() {
+            const game = currentGames.choob;
+            const board = document.getElementById('choob-board');
+            
+            // Create numbered board (1-100)
+            board.innerHTML = '';
+            for (let i = 100; i > 0; i--) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.index = 100 - i;
+                cell.textContent = i;
+                cell.style.fontSize = '0.7rem';
+                cell.style.background = game.maze && game.maze[Math.floor((99 - i) / 10)] && game.maze[Math.floor((99 - i) / 10)][(99 - i) % 10] ? '#495670' : 'var(--bg-secondary)';
+                board.appendChild(cell);
+            }
+            
+            // Place players
+            game.positions.forEach((pos, player) => {
+                if (pos > 0) {
+                    const cellIndex = 100 - pos;
+                    const cell = document.querySelector(`#choob-board .game-cell[data-index="${cellIndex}"]`);
+                    if (cell) {
+                        cell.textContent = player === 0 ? '🔵' : '🔴';
+                    }
+                }
+            });
+        }
+
+        function updateGameInfo(gameType) {
+            const game = currentGames[gameType];
+            const info = document.getElementById(`${gameType}-info`);
+            
+            if (gameType === 'choob') {
+                if (game.mode === 'ai' && game.currentPlayer === 1) {
+                    info.textContent = 'نوبت ربات 🤖';
+                } else {
+                    info.textContent = `نوبت بازیکن ${game.currentPlayer + 1} (${game.currentPlayer === 0 ? '🔵' : '🔴'})`;
+                }
+            }
+        }
+
+        // ==================== MAZE ==================== */
+        function initMaze() {
+            const container = document.getElementById('game-maze');
+            container.innerHTML = `
+                <h3>🌀 MAZE - لابیرنت</h3>
+                <div class="game-controls">
+                    <button class="btn btn-primary" onclick="generateMaze()">🎲 لابیرنت جدید</button>
+                    <button class="btn btn-secondary" onclick="solveMazeWithAI()">🤖 حل با AI</button>
+                </div>
+                <div class="game-info" id="maze-info">از 🤖 به 🎯 برسید!</div>
+                <div class="game-board" id="maze-board" style="grid-template-columns: repeat(10, 1fr);"></div>
+            `;
+            
+            currentGames.maze = {
+                size: 10,
+                playerPos: {x: 0, y: 0},
+                exitPos: {x: 9, y: 9},
+                maze: []
+            };
+            
+            generateMaze();
+        }
+
+        function generateMaze() {
+            const game = currentGames.maze;
+            const size = game.size;
+            const board = document.getElementById('maze-board');
+            board.innerHTML = '';
+            board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            
+            // Create maze with random walls
+            game.maze = [];
+            for (let y = 0; y < size; y++) {
+                game.maze[y] = [];
+                for (let x = 0; x < size; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'game-cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+                    
+                    const isWall = Math.random() < 0.25 && !(x === 0 && y === 0) && !(x === size-1 && y === size-1);
+                    game.maze[y][x] = isWall;
+                    
+                    cell.style.background = isWall ? '#495670' : 'var(--bg-secondary)';
+                    cell.textContent = (x === 0 && y === 0) ? '🤖' : (x === size-1 && y === size-1) ? '🎯' : '';
+                    
+                    if (!isWall) {
+                        cell.onclick = () => moveInMaze(x, y);
+                    }
+                    
+                    board.appendChild(cell);
+                }
+            }
+            
+            game.playerPos = {x: 0, y: 0};
+            showToast('لابیرنت جدید ساخته شد! از 🤖 به 🎯 بروید', 'info');
+        }
+
+        function moveInMaze(x, y) {
+            const game = currentGames.maze;
+            if (game.maze[y][x]) return;
+            
+            // Check adjacency
+            const dx = Math.abs(x - game.playerPos.x);
+            const dy = Math.abs(y - game.playerPos.y);
+            if (dx + dy !== 1) return;
+            
+            // Move player
+            const oldCell = document.querySelector(`#maze-board .game-cell[data-x="${game.playerPos.x}"][data-y="${game.playerPos.y}"]`);
+            if (oldCell) oldCell.textContent = '';
+            
+            game.playerPos = {x, y};
+            const newCell = document.querySelector(`#maze-board .game-cell[data-x="${x}"][data-y="${y}"]`);
+            newCell.textContent = '🤖';
+            
+            if (x === game.exitPos.x && y === game.exitPos.y) {
+                showToast('🎉 تبریک! شما به مقصد رسیدید!', 'success');
+            }
+        }
+
+        async function solveMazeWithAI() {
+            const game = currentGames.maze;
+            showToast('🤖 ربات در حال فکر کردن...', 'info');
+            
+            // Convert maze to string
+            let mazeStr = '';
+            for (let y = 0; y < game.size; y++) {
+                for (let x = 0; x < game.size; x++) {
+                    mazeStr += game.maze[y][x] ? '#' : '.';
+                }
+                mazeStr += '\n';
+            }
+            
+            const prompt = `Maze (10x10), # = wall, . = path:\n${mazeStr}\nFind path from (0,0) to (9,9) using U,D,L,R. Respond only with moves like: DDRRURDD`;
+            const aiResponse = await callCohere(prompt, 50);
+            
+            const moves = aiResponse.match(/[UDLR]+/g);
+            if (moves && moves[0]) {
+                executeMazeMoves(moves[0]);
+            } else {
+                showToast('❌ AI نتوانست مسیر پیدا کند', 'error');
+            }
+        }
+
+        function executeMazeMoves(moves) {
+            const game = currentGames.maze;
+            let pos = {x: 0, y: 0};
+            
+            moves.split('').forEach((move, index) => {
+                setTimeout(() => {
+                    let newX = pos.x, newY = pos.y;
+                    
+                    if (move === 'U') newY--;
+                    else if (move === 'D') newY++;
+                    else if (move === 'L') newX--;
+                    else if (move === 'R') newX++;
+                    
+                    if (newX >= 0 && newX < game.size && newY >= 0 && newY < game.size && !game.maze[newY][newX]) {
+                        // Move
+                        const oldCell = document.querySelector(`#maze-board .game-cell[data-x="${pos.x}"][data-y="${pos.y}"]`);
+                        if (oldCell) oldCell.textContent = '';
+                        
+                        pos = {x: newX, y: newY};
+                        const newCell = document.querySelector(`#maze-board .game-cell[data-x="${newX}"][data-y="${newY}"]`);
+                        newCell.textContent = '🤖';
+                        
+                        if (newX === game.exitPos.x && newY === game.exitPos.y) {
+                            showToast('🎉 ربات به مقصد رسید!', 'success');
+                        }
+                    }
+                }, index * 200);
+            });
+        }
+
+        // ==================== UTILITY FUNCTIONS ==================== */
+        const kbInput = document.getElementById('kb-input');
+        const kbOutput = document.getElementById('kb-output');
+        const cryptoInput = document.getElementById('crypto-input');
+        const cryptoKey = document.getElementById('crypto-key');
+        const cryptoCode = document.getElementById('crypto-code');
+        const cryptoOutput = document.getElementById('crypto-output');
+        const pinglishInput = document.getElementById('pinglish-input');
+        const pinglishOutput = document.getElementById('pinglish-output');
+        const passwordOutput = document.getElementById('password-output');
+        const cleanerInput = document.getElementById('cleaner-input');
+
+        // Auto keyboard conversion
+        if (kbInput) {
+            kbInput.addEventListener('input', () => {
+                const mapping = {
+                    'q': 'ض', 'w': 'ص', 'e': 'ث', 'r': 'ق', 't': 'ف', 'y': 'غ', 'u': 'ع', 'i': 'ه', 'o': 'خ', 'p': 'ح',
+                    '[': 'ج', ']': 'چ', 'a': 'ش', 's': 'س', 'd': 'ی', 'f': 'ب', 'g': 'ل', 'h': 'ا', 'j': 'ت',
+                    'k': 'ن', 'l': 'م', ';': 'ک', "'": 'گ', 'z': 'ظ', 'x': 'ط', 'c': 'ز', 'v': 'ر', 'b': 'ذ',
+                    'n': 'د', 'm': 'پ', ',': 'و', '.': '.', '/': '؟', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵',
+                    '6': '۶', '7': '۷', '8': '۸', '9': '۹', '0': '۰'
+                };
+                
+                let output = '';
+                for (let char of kbInput.value) {
+                    output += mapping[char] || char;
+                }
+                kbOutput.value = output;
+            });
+        }
+
+        function clearKeyboard() {
+            if (kbInput) kbInput.value = '';
+            if (kbOutput) kbOutput.value = '';
+        }
+
+        // Crypto
+        function encryptText() {
+            if (!cryptoInput || !cryptoCode) return;
+            
+            const input = cryptoInput.value;
+            const key = cryptoKey?.value || 'default-key';
+            
+            if (!input) {
+                showToast('❌ لطفاً متنی وارد کنید', 'error');
+                return;
+            }
+            
+            try {
+                const encrypted = CryptoJS.AES.encrypt(input, key).toString();
+                const compressed = btoa(encrypted);
+                
+                cryptoCode.value = compressed;
+                if (cryptoOutput) cryptoOutput.style.display = 'block';
+                
+                addToHistory('crypto', input, compressed, 'رمزنگاری');
+                showToast('✅ رمزنگاری موفقیت‌آمیز', 'success');
+            } catch (error) {
+                showToast('❌ خطا در رمزنگاری', 'error');
+            }
+        }
+
+        function decryptPrompt() {
+            const code = prompt('🔑 کد رمز را وارد کنید:');
+            const key = prompt('کلید رمز (اختیاری):') || 'default-key';
+            
+            if (!code) return;
+            
+            try {
+                const decrypted = CryptoJS.AES.decrypt(atob(code), key).toString(CryptoJS.enc.Utf8);
+                if (!decrypted) throw new Error('Invalid');
+                
+                if (cryptoInput) cryptoInput.value = decrypted;
+                showToast('✅ رمزگشایی موفق', 'success');
+            } catch (error) {
+                showToast('❌ کد یا کلید نامعتبر', 'error');
+            }
+        }
+
+        function clearCrypto() {
+            if (cryptoInput) cryptoInput.value = '';
+            if (cryptoKey) cryptoKey.value = '';
+            if (cryptoOutput) cryptoOutput.style.display = 'none';
+        }
+
+        // Pinglish
+        function detectPinglish() {
+            if (!pinglishInput) return;
+            
+            const input = pinglishInput.value;
+            const hasLatin = /[a-zA-Z]/.test(input);
+            const hasPersian = /[\u0600-\u06FF]/.test(input);
+            
+            if (hasLatin && !hasPersian) {
+                pinglishToFarsi();
+            } else if (hasPersian && !hasLatin) {
+                farsiToPinglish();
+            } else {
+                showToast('⚠️ زبان متن مشخص نیست', 'warning');
+            }
+        }
+
+        function pinglishToFarsi() {
+            if (!pinglishInput || !pinglishOutput) return;
+            
+            const mapping = {
+                'kh': 'خ', 'ch': 'چ', 'sh': 'ش', 'zh': 'ژ', 'gh': 'غ', 'th': 'ث',
+                'a': 'ا', 'b': 'ب', 'c': 'ک', 'd': 'د', 'e': 'ه', 'f': 'ف', 'g': 'گ',
+                'h': 'ح', 'i': 'ی', 'j': 'ج', 'k': 'ک', 'l': 'ل', 'm': 'م', 'n': 'ن',
+                'o': 'و', 'p': 'پ', 'q': 'ق', 'r': 'ر', 's': 'س', 't': 'ت', 'u': 'و',
+                'v': 'و', 'w': 'و', 'x': 'کس', 'y': 'ی', 'z': 'ز'
+            };
+            
+            let output = pinglishInput.value.toLowerCase();
+            Object.keys(mapping).sort((a,b) => b.length - a.length).forEach(key => {
+                output = output.replaceAll(key, mapping[key]);
+            });
+            
+            pinglishOutput.value = output;
+            addToHistory('pinglish', pinglishInput.value, output, 'فینگلیش ← فارسی');
+            showToast('✅ تبدیل فینگلیش انجام شد', 'success');
+        }
+
+        function farsiToPinglish() {
+            if (!pinglishInput || !pinglishOutput) return;
+            
+            const mapping = {
+                'خ': 'kh', 'چ': 'ch', 'ش': 'sh', 'ژ': 'zh', 'غ': 'gh', 'ث': 'th',
+                'ا': 'a', 'ب': 'b', 'پ': 'p', 'ت': 't', 'ج': 'j', 'د': 'd', 'ر': 'r',
+                'ز': 'z', 'س': 's', 'ف': 'f', 'ق': 'q', 'ک': 'k', 'گ': 'g', 'ل': 'l',
+                'م': 'm', 'ن': 'n', 'و': 'o', 'ه': 'h', 'ی': 'y'
+            };
+            
+            let output = pinglishInput.value;
+            Object.keys(mapping).forEach(key => {
+                output = output.replaceAll(key, mapping[key]);
+            });
+            
+            pinglishOutput.value = output;
+            addToHistory('pinglish', pinglishInput.value, output, 'فارسی ← فینگلیش');
+            showToast('✅ تبدیل فارسی انجام شد', 'success');
+        }
+
+        // Tools
+        function generatePassword() {
+            if (!passwordOutput) return;
+            
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+            let password = '';
+            for (let i = 0; i < 16; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            passwordOutput.value = password;
+            addToHistory('tools', 'Generated Password', password, 'Password Generator');
+            showToast('✅ پسورد تولید شد', 'success');
+        }
+
+        function cleanText() {
+            if (!cleanerInput) return;
+            
+            let text = cleanerInput.value;
+            
+            if (document.getElementById('fix-spaces')?.checked) {
+                text = text.replace(/\s+/g, ' ').trim();
+            }
+            
+            if (document.getElementById('fix-arabic')?.checked) {
+                text = text.replace(/ي/g, 'ی').replace(/ك/g, 'ک');
+            }
+            
+            if (document.getElementById('fix-punctuation')?.checked) {
+                text = text.replace(/؟/g, '?');
+            }
+            
+            cleanerInput.value = text;
+            addToHistory('tools', 'Original Text', text, 'Text Cleaner');
+            showToast('✅ متن اصلاح شد', 'success');
+        }
+
+        function addToHistory(type, input, output, action) {
+            if (!input) return;
+            
+            const history = JSON.parse(localStorage.getItem('convertHistory_v3') || '[]');
+            const item = {
+                id: Date.now(),
+                type,
+                input,
+                output,
+                action,
+                timestamp: new Date().toLocaleDateString('fa-IR') + ' ' + new Date().toLocaleTimeString('fa-IR')
+            };
+            
+            if (history.length >= 50) history.shift();
+            history.push(item);
+            
+            localStorage.setItem('convertHistory_v3', JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('convertHistory_v3') || '[]');
+            const container = document.getElementById('history-list');
+            
+            if (!container) return;
+            
+            if (history.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">تاریخچه خالی است</p>';
+                return;
+            }
+            
+            container.innerHTML = history.reverse().map(item => `
+                <div class="history-item" onclick="loadHistoryItem('${item.id}')" role="button" tabindex="0">
+                    <div class="history-date">${item.timestamp} - ${item.action}</div>
+                    <div class="history-text">${item.input.substring(0, 50)}${item.input.length > 50 ? '...' : ''} → ${item.output.substring(0, 50)}${item.output.length > 50 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadHistoryItem(id) {
+            const history = JSON.parse(localStorage.getItem('convertHistory_v3') || '[]');
+            const item = history.find(h => h.id == id);
+            
+            if (!item) return;
+            
+            const tabs = ['keyboard', 'crypto', 'pinglish', 'tools'];
+            const tabIndex = tabs.indexOf(item.type);
+            
+            if (tabIndex !== -1) {
+                document.querySelectorAll('.nav-link')[tabIndex].click();
+                
+                setTimeout(() => {
+                    if (item.type === 'keyboard') {
+                        if (kbInput) kbInput.value = item.input;
+                        if (kbOutput) kbOutput.value = item.output;
+                    } else if (item.type === 'crypto') {
+                        if (cryptoInput) cryptoInput.value = item.output;
+                    } else if (item.type === 'pinglish') {
+                        if (pinglishInput) pinglishInput.value = item.input;
+                        if (pinglishOutput) pinglishOutput.value = item.output;
+                    } else if (item.type === 'tools') {
+                        if (passwordOutput) passwordOutput.value = item.output;
+                    }
+                }, 100);
+            }
+            
+            showToast('✅ متن بارگذاری شد', 'success');
+        }
+
+        function clearHistory() {
+            if (!confirm('⚠️ آیا از پاک کردن تمام تاریخچه اطمینان دارید؟')) return;
+            
+            localStorage.removeItem('convertHistory_v3');
+            loadHistory();
+            showToast('✅ تاریخچه پاک شد', 'success');
+        }
+
+        function exportHistory() {
+            const history = JSON.parse(localStorage.getItem('convertHistory_v3') || '[]');
+            if (history.length === 0) {
+                showToast('❌ تاریخچه خالی است', 'error');
+                return;
+            }
+            
+            const csv = history.map(item => 
+                `"${item.action}","${item.input.replace(/"/g, '""')}","${item.output.replace(/"/g, '""')}","${item.timestamp}"`
+            ).join('\n');
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `تاریخچه-تبدیل-${new Date().toLocaleDateString('fa-IR')}.csv`;
+            link.click();
+            
+            showToast('✅ تاریخچه دانلود شد', 'success');
+        }
+
+        function addToLibrary(type) {
+            const input = type === 'keyboard' ? kbInput?.value : pinglishInput?.value;
+            const output = type === 'keyboard' ? kbOutput?.value : pinglishOutput?.value;
+            
+            if (!input || !output) {
+                showToast('❌ ابتدا تبدیلی انجام دهید', 'error');
+                return;
+            }
+            
+            const title = prompt('🏷️ عنوان این متن را وارد کنید:');
+            if (!title) return;
+            
+            const tags = prompt('برچسب‌ها (با کاما جدا کنید):', type + ', بازی') || '';
+            
+            const library = JSON.parse(localStorage.getItem('personalLibrary_v3') || '[]');
+            const item = {
+                id: Date.now(),
+                title,
+                type,
+                input,
+                output,
+                tags: tags.split(',').map(t => t.trim()),
+                createdAt: new Date().toLocaleDateString('fa-IR')
+            };
+            
+            library.push(item);
+            localStorage.setItem('personalLibrary_v3', JSON.stringify(library));
+            
+            showToast('✅ به کتابخانه اضافه شد', 'success');
+            if (document.getElementById('library').classList.contains('active')) loadLibrary();
+        }
+
+        function addToLibraryPrompt() {
+            const title = prompt('🏷️ عنوان متن:');
+            if (!title) return;
+            
+            const input = prompt('متن ورودی:');
+            if (!input) return;
+            
+            const output = prompt('متن خروجی:') || '';
+            
+            const library = JSON.parse(localStorage.getItem('personalLibrary_v3') || '[]');
+            library.push({
+                id: Date.now(),
+                title,
+                input,
+                output,
+                date: new Date().toLocaleDateString('fa-IR')
+            });
+            
+            localStorage.setItem('personalLibrary_v3', JSON.stringify(library));
+            loadLibrary();
+            showToast('✅ آیتم جدید اضافه شد', 'success');
+        }
+
+        function loadLibrary() {
+            const library = JSON.parse(localStorage.getItem('personalLibrary_v3') || '[]');
+            const container = document.getElementById('library-grid');
+            
+            if (!container) return;
+            
+            if (library.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">کتابخانه خالی است</p>';
+                return;
+            }
+            
+            container.innerHTML = library.reverse().map(item => `
+                <div class="history-item">
+                    <h4 style="color: var(--accent); margin-bottom: 0.5rem;">${item.title}</h4>
+                    <div class="history-date">${item.date}</div>
+                    <div class="history-text" style="margin-top: 0.5rem;">${item.input.substring(0, 60)}${item.input.length > 60 ? '...' : ''} → ${item.output.substring(0, 60)}${item.output.length > 60 ? '...' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        function copyToClipboard(text, message) {
+            if (!text) {
+                showToast('❌ چیزی برای کپی نیست', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(message || '✅ کپی شد!', 'success');
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast(message || '✅ کپی شد!', 'success');
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // ==================== INITIALIZATION ==================== */
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHistory();
+            loadLibrary();
+            
+            // Close mobile menu on resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    mobileMenuToggle.classList.remove('active');
+                    mobileOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            console.log('🚀 ابزار متن و بازی هوشمند 3.0 آماده است!');
+            console.log('⚠️ هشدار: API Key در Frontend قرار دارد - فقط برای تست!');
+        });
     </script>
 </body>
 </html>
